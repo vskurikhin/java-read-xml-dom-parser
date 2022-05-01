@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2022.05.01 18:17 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * IO.java
+ * $Id$
+ */
+
 package su.svn.readXML.utils;
 
 import java.io.BufferedReader;
