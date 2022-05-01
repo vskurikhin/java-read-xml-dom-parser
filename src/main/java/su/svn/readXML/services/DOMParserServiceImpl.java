@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.05.01 21:29 by Victor N. Skurikhin.
+ * This file was last modified at 2022.05.01 21:31 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * DOMParserServiceImpl.java
@@ -10,7 +10,11 @@ package su.svn.readXML.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
