@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.05.01 21:31 by Victor N. Skurikhin.
+ * This file was last modified at 2022.05.01 22:44 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * DOMParserServiceImpl.java
@@ -9,6 +9,7 @@
 package su.svn.readXML.services;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -16,6 +17,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import su.svn.readXML.model.Bundle;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -31,28 +33,33 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static su.svn.readXML.Main.SPACES;
 
 @Slf4j
 @Service
-public class DOMParserServiceImpl {
+public class DOMParserServiceImpl implements DOMParserService {
     public static final String prefixSymbol = "|   ";
 
-    public void parseData(String xmlData, String xmlSchemaFileName) {
-        parse(new ByteArrayInputStream(xmlData.getBytes()), xmlSchemaFileName);
+    @Override
+    public List<Bundle> parseData(String xmlData, String xmlSchemaFileName) {
+        return parse(new ByteArrayInputStream(xmlData.getBytes()), xmlSchemaFileName);
     }
 
-    public void parseFile(String xmlFile, String xmlSchemaFileName) {
+    @Override
+    public List<Bundle> parseFile(String xmlFile, String xmlSchemaFileName) {
         try (InputStream is = new FileInputStream(xmlFile)) {
-            parse(is, xmlSchemaFileName);
+            return parse(is, xmlSchemaFileName);
         } catch (IOException e) {
             throw new RuntimeException(e); // TODO custom Exception
         }
     }
 
-    private void parse(InputStream is, String schemaFileName) {
+    private List<Bundle> parse(InputStream is, String schemaFileName) {
         Schema schema = null;
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
@@ -70,17 +77,23 @@ public class DOMParserServiceImpl {
             //Here comes the root node
             Element root = document.getDocumentElement();
             log.info("XML root: [[{}]]", root.getNodeName());
+            Bundle.Builder bbuilder = Bundle.builder().name(root.getNodeName());
 
             NodeList nList = document.getElementsByTagName("employee");
 
-            visitChildNodes(nList, 1);
+            List<Bundle> children = visitChildNodes(nList, 1);
+            bbuilder.values(ListUtils.unmodifiableList(children));
+
+            return Collections.singletonList(bbuilder.build());
         } catch (ParserConfigurationException | IOException | SAXException e) {
             throw new RuntimeException(e);  // TODO custom Exception
         }
     }
 
     //This function is called recursively
-    private static void visitChildNodes(NodeList nList, int level) {
+    private static List<Bundle> visitChildNodes(NodeList nList, int level) {
+
+        final List<Bundle> result = new LinkedList<>();
 
         final String prefixSeparator = prefixSymbol.repeat(level);
 
@@ -91,6 +104,8 @@ public class DOMParserServiceImpl {
                         .filter(s -> s != null && s.length() > 0)
                         .collect(Collectors.joining(" || "));
                 log.info("{}Node name: [[{}]] Value: [[{}]]", prefixSeparator, node.getNodeName(), content);
+                Bundle.Builder builder = Bundle.builder().name(node.getNodeName());
+                builder.value(content);
                 //Check all attributes
                 if (node.hasAttributes()) {
                     // get attributes names and values
@@ -107,9 +122,14 @@ public class DOMParserServiceImpl {
                 }
                 if (node.hasChildNodes()) {
                     //We got more childs; Let's visit them as well
-                    visitChildNodes(node.getChildNodes(), level + 1);
+                    List<Bundle> children = visitChildNodes(node.getChildNodes(), level + 1);
+                    if (children.size() > 0) {
+                        builder.values(ListUtils.unmodifiableList(children));
+                    }
                 }
+                result.add(builder.build());
             }
         }
+        return result;
     }
 }
