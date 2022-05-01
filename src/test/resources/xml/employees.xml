@@ -14,4 +14,9 @@
         <lastName>Feezor</lastName>
         <location>USA</location>
     </employee>
+    <employee>
+        <firstName>Victor</firstName>
+        <lastName>Skurikhin</lastName>
+        <location>USA</location>
+    </employee>
 </employees>
