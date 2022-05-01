@@ -25,6 +25,9 @@ class DOMParserServiceImplTest {
 
     @Test
     void parseFile() {
-        domParserService.parseFile(IO.Util.getResource("xml/employees.xml"));
+        domParserService.parseFile(
+                IO.Util.getResource("xml/employees.xml"),
+                IO.Util.getResource("xsd/employees.xsd")
+        );
     }
 }
