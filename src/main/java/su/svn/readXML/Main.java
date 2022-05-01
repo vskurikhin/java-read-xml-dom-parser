@@ -51,7 +51,6 @@ public class Main implements ApplicationContextAware, CommandLineRunner, Closeab
 		for (String bean : beans) {
 			log.info(bean);
 		}
-		Thread.sleep(99_000);
 	}
 
 	@Override
@@ -73,9 +72,11 @@ public class Main implements ApplicationContextAware, CommandLineRunner, Closeab
 	}
 
 	private void kill() throws IOException {
-		final File initialFile = new File(MAIN_PID);
-		final InputStream targetStream = new FileInputStream(initialFile);
-		final String pidString = IO.Util.readFromInputStream(targetStream).replaceAll(SPACES, "");
+		final File pidFile = new File(MAIN_PID);
+		final InputStream pidStream = new FileInputStream(pidFile);
+		final String pidString = IO.Util
+				.readFromInputStream(pidStream)
+				.replaceAll(SPACES, "");
 		int pid = Integer.parseInt(pidString);
 		log.info("killing pid {}", pid);
 		Runtime.getRuntime().exec("kill -SIGINT " + pid);
