@@ -18,9 +18,15 @@ repositories {
 	mavenCentral()
 }
 
+configurations {
+	xjcClasspath
+}
+
 dependencies {
+	implementation 'com.sun.xml.bind:jaxb-impl:3.0.0'
+	implementation 'jakarta.activation:jakarta.activation-api:2.1.0'
 	implementation 'jakarta.annotation:jakarta.annotation-api:1.3.5'
-	implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
+	implementation 'jakarta.xml.bind:jakarta.xml.bind-api:3.0.0'
 	implementation 'org.apache.commons:commons-collections4:4.4'
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
